@@ -1,4 +1,19 @@
 $(function(){
+    var months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ];
+
     var ModalWindow = Backbone.View.extend({
         initialize: function() {
             var self = this;
@@ -36,7 +51,7 @@ $(function(){
             var dateString = (new Date(+this.timestamp)).toDateString();
 
             $("#modal-event-header").html('Event for ' +
-                (dateString[8] == '0' ? dateString[9] : dateString.slice(8,10) ) +
+                (dateString[8] == '0' ? months[+dateString[9]] : months[+dateString.slice(8,10)] ) +
                 ' '+
                 dateString.slice(4,7)+
                 ' '+
@@ -142,7 +157,12 @@ $(function(){
         render: function(animateDirection) {
 
             if (animateDirection !== undefined) {
+                var classArray = ["animated"];
 
+                classArray.push(animateDirection ? 'fadeInRight' : 'fadeInLeft');
+
+                fixAnimateBug($('.calendar-table')[0], classArray);
+                /*
                 var element = $('.calendar-table')[0];
 
                 element.classList.remove("animated", "fadeInRight", "fadeInLeft", "fadeOutLeft", "fadeOutRight");
@@ -150,7 +170,7 @@ $(function(){
                 element.offsetWidth = element.offsetWidth;
 
                 element.classList.add('animated', animateDirection ? 'fadeInRight' : 'fadeInLeft');
-
+                */
             }
             var state = this.state;
             var begunDate = new Date(state.getFullYear(), state.getMonth(), 1);
@@ -159,20 +179,10 @@ $(function(){
             while(begunDate.getDay() !== 1)
                 begunDate.setDate(begunDate.getDate() - 1);
 
-            this.header.html([
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December"
-            ][state.getMonth()] + ' ' + state.getFullYear());
+            this.header
+                .html(months[state.getMonth()] + ' ' + state.getFullYear())
+                .addClass('animated pulse');
+
 
             $("tr.calendar-table-row").each(function(i, element) {
                 elem = $(element);
@@ -190,8 +200,11 @@ $(function(){
                     if (begunDate.getMonth() !== state.getMonth())
                         $(dayElem).addClass("another-month");
 
-                    if (comments.filter(function(event){return +event.attributes.timestamp === +begunDate}).length)
+                    if (comments.filter(function(event){return +event.attributes.timestamp === +begunDate}).length) {
                         $(dayElem).addClass("full-day");
+                        if (begunDate.getMonth() === state.getMonth())
+                            $(dayElem).addClass("animated flipInX");
+                    }
 
                     begunDate.setDate(begunDate.getDate() + 1);
 
@@ -219,4 +232,13 @@ $(function(){
 
     var App = new AppView;
 
+
+    function fixAnimateBug(element, classArr) {
+        element.classList.remove.apply(element, classArr);
+
+        element.offsetWidth = element.offsetWidth;
+
+        element.classList.add.apply(element, classArr);
+
+    }
 });
