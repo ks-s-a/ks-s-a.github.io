@@ -1,0 +1,97 @@
+html, body, .container {
+    height: 100%;
+    overflow: hidden;
+}
+
+html {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.container-calendar {
+    padding: 5%;
+    width: 100%;
+    height: 100%;
+}
+
+header {
+    text-align: center;
+    height: 10%;
+    font: 700 24px courier;
+}
+
+.arrow-wrapper {
+    display: table;
+    height: 90%;
+}
+
+.arrow-wrapper-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.arrow-left {
+    text-align: right;
+}
+
+.arrow-right {
+    text-align: left;
+}
+
+.arrow {
+    opacity: .6;
+    font-size: 50px;
+}
+
+.arrow:hover {
+    opacity: .9;
+}
+
+.days-table,
+.days-table tbody {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-table {
+    height: 90%;
+}
+
+.calendar-table-row {
+    width: 100%;
+    height: calc(100% / 7);
+}
+
+.days-table thead tr {
+    height: calc(100% / 7);
+    width: 100%;
+}
+
+.days-table th{
+    border: 1px solid #aaa;
+    background-color: #deedf7;
+    text-align: center;
+}
+
+.cell {
+    width: calc(100% / 7);
+    text-align: center;
+    font: 700 32px sans-serif;
+}
+
+.cell.another-month {
+    opacity: .5;
+}
+
+.cell.full-day {
+    background-color: lightpink;
+}
+
+.cell:hover {
+    background-color: #DDD;
+}
