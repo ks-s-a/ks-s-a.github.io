@@ -48,14 +48,14 @@ $(function(){
 
         show: function(options) {
             this.timestamp = options.timestamp;
-            var dateString = (new Date(+this.timestamp)).toDateString();
+            var date = new Date(+this.timestamp);
 
             $("#modal-event-header").html('Event for ' +
-                (dateString[8] == '0' ? months[+dateString[9]] : months[+dateString.slice(8,10)] ) +
+                (date.toDateString().slice(8,9) === '0' ? date.toDateString().slice(9,10) : date.toDateString().slice(8,10) )+
                 ' '+
-                dateString.slice(4,7)+
+                months[+date.getMonth()]+
                 ' '+
-                dateString.slice(11,15)
+                date.toDateString().slice(11,15)
             );
             if (options.comment)
                 $("#modal-comment").val(options.comment);
@@ -158,10 +158,11 @@ $(function(){
 
             if (animateDirection !== undefined) {
                 var classArray = ["animated"];
+                var classRemArray = ["animated", "fadeInRight", "fadeInLeft", "fadeOutLeft", "fadeOutRight"];
 
                 classArray.push(animateDirection ? 'fadeInRight' : 'fadeInLeft');
 
-                fixAnimateBug($('.calendar-table')[0], classArray);
+                fixAnimateBug($('.calendar-table')[0], classArray, classRemArray);
                 /*
                 var element = $('.calendar-table')[0];
 
@@ -180,8 +181,8 @@ $(function(){
                 begunDate.setDate(begunDate.getDate() - 1);
 
             this.header
-                .html(months[state.getMonth()] + ' ' + state.getFullYear())
-                .addClass('animated pulse');
+                .html(months[state.getMonth()] + ' ' + state.getFullYear());
+            fixAnimateBug(this.header[0], ["animated", "pulse"], ["animated", "pulse"]);
 
 
             $("tr.calendar-table-row").each(function(i, element) {
@@ -233,12 +234,12 @@ $(function(){
     var App = new AppView;
 
 
-    function fixAnimateBug(element, classArr) {
-        element.classList.remove.apply(element, classArr);
+    function fixAnimateBug(element, classArr, classRemArray) {
+        element.classList.remove.apply(element.classList, classRemArray);
 
         element.offsetWidth = element.offsetWidth;
 
-        element.classList.add.apply(element, classArr);
+        element.classList.add.apply(element.classList, classArr);
 
     }
 });
