@@ -64,11 +64,11 @@ header {
 
 .calendar-table-row {
     width: 100%;
-    height: calc(100% / 7);
+    height: calc(100% / 7px);
 }
 
 .days-table thead tr {
-    height: calc(100% / 7);
+    height: calc(100% / 7px);
     width: 100%;
 }
 
@@ -79,7 +79,7 @@ header {
 }
 
 .cell {
-    width: calc(100% / 7);
+    width: calc(100% / 7px);
     text-align: center;
     font: 700 32px sans-serif;
 }
