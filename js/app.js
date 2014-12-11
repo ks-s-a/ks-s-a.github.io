@@ -1,3 +1,5 @@
+'use strict';
+
 $(function(){
     var months = [
         "January",
@@ -15,6 +17,14 @@ $(function(){
     ];
 
     var ModalWindow = Backbone.View.extend({
+
+        el: $('div.modal'),
+
+        events: {
+            "click #modal-close-button, #modal-close-icon": "close",
+            "click #modal-save-button": "save"
+        },
+
         initialize: function() {
             var self = this;
 
@@ -23,7 +33,10 @@ $(function(){
                     '<div class="modal-dialog">'+
                         '<div class="modal-content">'+
                             '<div class="modal-header">'+
-                                '<button id="modal-close-icon" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>'+
+                                '<button id="modal-close-icon" type="button" class="close" data-dismiss="modal">' +
+                                    '<span aria-hidden="true">&times;</span>' +
+                                    '<span class="sr-only">Close</span>' +
+                                '</button>'+
                                 '<h4 id="modal-event-header" class="modal-title">Event:</h4>'+
                             '</div>'+
                             '<div class="modal-body">'+
@@ -38,15 +51,14 @@ $(function(){
                 '</div><!-- /.modal -->'
             );
 
-            this.el = $('div.modal')[0];
+            this.$el = $('.modal');
 
             Backbone.on('show:modal', this.show, this);
-
-            $('#modal-close-button, #modal-close-icon').click(this.close.bind(this));
-            $('#modal-save-button').click(this.save.bind(this));
         },
 
         show: function(options) {
+
+            // save timestamp for identify day
             this.timestamp = options.timestamp;
             var date = new Date(+this.timestamp);
 
@@ -57,28 +69,25 @@ $(function(){
                 ' '+
                 date.toDateString().slice(11,15)
             );
-            if (options.comment)
-                $("#modal-comment").val(options.comment);
 
-            $(this.el).addClass('animated fadeInDown').show();
+            $("#modal-comment").val(options.comment ? options.comment : '');
+
+            this.$el.addClass('animated fadeInDown').show();
         },
 
         close: function() {
-            $(this.el).hide();
-
-            $("#modal-comment").val('');
+            this.$el.hide();
         },
 
         save: function() {
             var value = $("#modal-comment").val();
 
-            if (!value)
-                return this.close();
+            if (value) {
+                Backbone.trigger("add:comment", {"comment": value, "timestamp": this.timestamp});
+                Backbone.trigger("render");
+            }
 
-            Backbone.trigger("add:comment", {"comment": value, "timestamp": this.timestamp});
-            Backbone.trigger("render");
-
-            return this.close();
+            this.close();
         }
     });
 
@@ -91,8 +100,11 @@ $(function(){
         },
 
         onAdd: function(options) {
-            // remove previous notes
-            this.remove( this.filter(function(event){return event.attributes.timestamp === options.timestamp}));
+
+            // remove previous note
+            this.remove( this.filter(function(event){
+                return event.attributes.timestamp === options.timestamp;
+            }));
 
             this.add([options]);
         }
@@ -122,6 +134,7 @@ $(function(){
                 return false;
             }
 
+            // if we already have event for this day - give him into modal window
             Backbone.trigger("show:modal",
                 this.$el.hasClass("full-day") ?
                     comments
@@ -141,8 +154,8 @@ $(function(){
         },
 
         initialize: function() {
-            this.state = new Date;
 
+            this.state = new Date;
             this.header = $("header");
             this.leftArrow = $(".arrowLeft");
             this.rightArrow = $(".arrowRight");
@@ -156,40 +169,33 @@ $(function(){
 
         render: function(animateDirection) {
 
-            if (animateDirection !== undefined) {
+            var state = this.state;
+            var begunDate = new Date(state.getFullYear(), state.getMonth(), 1);
+
+            if (animateDirection !== undefined) { // if this is a shift window event
                 var classArray = ["animated"];
                 var classRemArray = ["animated", "fadeInRight", "fadeInLeft", "fadeOutLeft", "fadeOutRight"];
 
                 classArray.push(animateDirection ? 'fadeInRight' : 'fadeInLeft');
 
                 fixAnimateBug($('.calendar-table')[0], classArray, classRemArray);
-                /*
-                var element = $('.calendar-table')[0];
-
-                element.classList.remove("animated", "fadeInRight", "fadeInLeft", "fadeOutLeft", "fadeOutRight");
-
-                element.offsetWidth = element.offsetWidth;
-
-                element.classList.add('animated', animateDirection ? 'fadeInRight' : 'fadeInLeft');
-                */
             }
-            var state = this.state;
-            var begunDate = new Date(state.getFullYear(), state.getMonth(), 1);
 
             // Searching first Monday
             while(begunDate.getDay() !== 1)
                 begunDate.setDate(begunDate.getDate() - 1);
 
+            // Render modal header
             this.header
                 .html(months[state.getMonth()] + ' ' + state.getFullYear());
             fixAnimateBug(this.header[0], ["animated", "pulse"], ["animated", "pulse"]);
 
-
+            // Render calendar table
             $("tr.calendar-table-row").each(function(i, element) {
-                elem = $(element);
+                var elem = $(element);
+                var dayElem;
 
                 elem.empty();
-                var day;
 
                 for(var j = 7;j > 0;--j) {
                     dayElem = (new DayElement()).el;
@@ -218,7 +224,7 @@ $(function(){
         onShift: function(event) {
             var arrow = $(event.currentTarget);
 
-            this.changeMonth(arrow.hasClass("arrow-right"));
+            this.changeMonth(arrow.hasClass("arrow-right")); // Determine shift direction
         },
 
         changeMonth: function(pos) {
