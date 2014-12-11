@@ -243,7 +243,7 @@ $(function(){
     function fixAnimateBug(element, classArr, classRemArray) {
         element.classList.remove.apply(element.classList, classRemArray);
 
-        element.offsetWidth = element.offsetWidth;
+        $(element).attr('offsetWidth', element.offsetWidth);
 
         element.classList.add.apply(element.classList, classArr);
 
