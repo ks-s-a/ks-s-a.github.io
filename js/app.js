@@ -26,7 +26,6 @@ $(function(){
         },
 
         initialize: function() {
-            var self = this;
 
             $('body').append(
                 '<div class="modal">'+
